@@ -18,8 +18,8 @@ const LoginPage = () => {
 
   const handleClick = () => {
     
-    const loading = toast.loading("Logging in");
-    try {
+      const loading = toast.loading("Logging in");
+      try {
         signIn("google",{callbackUrl: '/'});
         toast.dismiss(loading);
     } catch (error) {
@@ -37,7 +37,6 @@ const LoginPage = () => {
 
 
     e.preventDefault();
-    const loading = toast.loading("Signing in")
     if (email === '' || password === '') {
         setError("Fill all fields!")
         return;
@@ -46,10 +45,10 @@ const LoginPage = () => {
         setError("Invalid email, must include @ and domain part!")
         return;
     }
-    console.log("email" + email);
-    console.log("password" + email);
+
+    const loading = toast.loading("Signing in")
     try {
-      const response =  await signIn(
+        await signIn(
             "credentials", {
                 email,
                 password,
@@ -57,13 +56,9 @@ const LoginPage = () => {
                 redirect: true
             }
         );
-        if(response){
+
             toast.dismiss(loading)
             toast.success("Signed in successfully");
-        }else{
-          toast.dismiss(loading);
-            toast.error("Failed to sign in, please try again!")   
-        }
     } catch (error) {
       toast.dismiss(loading);
       toast.error("Failed to sign in");

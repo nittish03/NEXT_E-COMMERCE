@@ -4,8 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import User from '../../../../models/userModel'
 import bcryptjs from "bcryptjs";
 import connectDb from "@/mongoDb/connectDb";
-import jwt from 'jsonwebtoken'
-import { getServerSession } from "next-auth";
+
 export const authoptions = NextAuth({
   providers: [
     GoogleProvider({
@@ -27,7 +26,7 @@ export const authoptions = NextAuth({
           if (!user) {
               return null;
           }
-          const passwordMatch = await bcryptjs.compare(credentials.password,user.password);
+          const passwordMatch = await bcryptjs.compare(credentials.password,user.hashedPassword);
 
           if (!passwordMatch) {
               return null

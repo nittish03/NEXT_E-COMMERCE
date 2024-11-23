@@ -1,28 +1,45 @@
-import mongoose, { Document, Schema } from "mongoose";
-import  bcryptjs from "bcryptjs";
-import JWT from 'jsonwebtoken'
-import cookie from "cookie";
-
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, "Username is Required"],
+  id: { 
+    type: String, 
+    default: () => new mongoose.Types.ObjectId() 
   },
-  email: {
-    type: String,
-    required: [true, "Email is required"],
-    unique: true,
+  name: { 
+    type: String, 
+    sparse: true
   },
-  password: {
-    type: String,
-    required: [true, "Password is required"],
-    minlength: [6, "Password length should be 6 character long"],
+  username: { 
+    type: String, 
+    unique: true, 
+    sparse: true, 
   },
+  email: { 
+    type: String, 
+    unique: true, 
+    sparse: true, 
+  },
+  hashedPassword: { 
+    type: String, 
+  },
+  image: { 
+    type: String, 
+  },
+  createdAt: { 
+    type: Date, 
+    default: Date.now 
+  },
+  updatedAt: { 
+    type: Date, 
+    default: Date.now 
+  }
+}, { 
+  timestamps: { 
+    createdAt: 'createdAt', 
+    updatedAt: 'updatedAt' 
+  } 
 });
 
-
-const User = mongoose.models.users || mongoose.model("users",userSchema);
+const User = mongoose.models.users || mongoose.model("users", userSchema);
 
 export default User;
-
