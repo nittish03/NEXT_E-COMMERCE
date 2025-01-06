@@ -4,7 +4,7 @@ import Image from "next/image";
 export default function Home() {
   return (
 <>
-<div className="w-full bg-black">
+<div className="overflow-hidden min-h-screen  bg-[#c2bfbf]">
 <LandingPage/>
 </div>
 </>

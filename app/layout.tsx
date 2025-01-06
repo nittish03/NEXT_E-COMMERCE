@@ -4,7 +4,7 @@ import "./globals.css";
 import SessionWrapper from "@/components/SessionWrapper";
 import Navbar from "@/components/Navbar";
 import { Toaster } from "react-hot-toast";
-
+import Footer from '@/components/Footer'
 
 
 export const metadata: Metadata = {
@@ -19,12 +19,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className=" w-screen text-white bg-black font-inter">
+      <body className="text-black bg-[#c2bfbf] font-inter">
         <SessionWrapper>
+          <div className="mb-16">
           <Navbar />
+          </div>
           <Toaster />
-          <div className="mt-24"></div>
-          <main>{children}</main>
+          <main >{children}</main>
+          <Footer/>
         </SessionWrapper>
       </body>
 

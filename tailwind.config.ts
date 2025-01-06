@@ -18,6 +18,9 @@ const config: Config = {
 			'custom-white':'#d9d9d9',
   			black: '#000000'
   		},
+		aspectRatio:{
+			'3/2': '2 / 3',
+		},
   		fontFamily: {
   			inria: ['Inria Sans', 'sans-serif'],
   			inter: ['Inter', 'sans-serif'],
