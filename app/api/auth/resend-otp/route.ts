@@ -1,5 +1,6 @@
-import { prismaDB } from "@/lib/prismaDB";
+
 import { OTPHandler } from "@/lib/sendEmail";
+import NonVerifiedUser from "@/models/nonVerifiedUserSchema";
 import { NextResponse } from "next/server";
 
 export async function POST(request : Request) {
@@ -14,11 +15,7 @@ export async function POST(request : Request) {
         )
     }
 
-    const nonVerifiedUser = await prismaDB.nonVerifiedUser.findUnique({
-        where : {
-            email
-        }
-    })
+    const nonVerifiedUser = await NonVerifiedUser.findOne({ email });
     if (!nonVerifiedUser) {
         return NextResponse.json( {
                 message:"Uesr does not exist",
@@ -40,15 +37,16 @@ export async function POST(request : Request) {
         const otp = otpClient.getOTP()
         const otpExpiry = new Date(Date.now() + 60 * 1000)
     
-        await prismaDB.nonVerifiedUser.update({
-            where : {
-                id: nonVerifiedUser.id
-            },
-            data : {
-                otp,
-                otpExpiry
+        await NonVerifiedUser.findByIdAndUpdate(
+            nonVerifiedUser.id, // Find by ID
+            { 
+                otp, 
+                otpExpiry 
+            }, // Fields to update
+            { 
+                new: true // Return the updated document
             }
-        })
+        );
 
         otpClient.sendOTP()
         return NextResponse.json("OTP sent, check your email", {
