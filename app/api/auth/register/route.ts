@@ -1,61 +1,62 @@
-import connectDb from "@/mongoDb/connectDb";
-import { NextRequest, NextResponse } from "next/server";
-import bcryptjs from "bcryptjs";
-import User from '../../../../models/userModel'  
-import NonVerifiedUser from "@/models/nonVerifiedUserSchema";
+import { prismaDB } from "@/lib/prismaDB";
+import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
 import { OTPHandler } from "@/lib/sendEmail";
 
-connectDb();
+export async function POST(request: Request) {
+    const body = await request.json();
+    const { email, username, password } = body;
 
-export async function POST(request: NextRequest) {
-  try {
-    const reqBody = await request.json();
-    const { username, email, password } = reqBody;
-
-    console.log(reqBody);
-
-    // Check if email already exists
-    const exisitingEmail = await User.findOne({ email });
-    if (exisitingEmail) {
-      return NextResponse.json({ error: "User already exists" }, { status: 400 });
+    if (!username || !email || !password) {
+        return NextResponse.json("Missing value name, email or password", {
+            status: 422
+        })
     }
 
-    // Hash the password
-    const salt = await bcryptjs.genSalt(10);
-    const hashedPassword = await bcryptjs.hash(password, salt);
+    const userExist = await prismaDB.user.findUnique({
+        where: {
+            email
+        }
+    })
+    if (userExist) {
+        return new NextResponse("User already exists", {
+            status: 400
+        })
+    }
+    try {
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Generate OTP
-    const otpClient = new OTPHandler(email);
-    const otp = otpClient.getOTP();
-    const otpExpiry = new Date(Date.now() + 60 * 1000);
+        const otpClient = new OTPHandler(email)
+        const otp = otpClient.getOTP()
+        const otpExpiry = new Date(Date.now() + 60 * 1000)
 
-    // Save user in the database
-    const user = await NonVerifiedUser.findOneAndUpdate(
-      { email },
-      { 
-        name: username || null, 
-        email, 
-        hashedPassword, 
-        otp, 
-        otpExpiry 
-      },
-      { 
-        upsert: true,
-        new: true,
-        setDefaultsOnInsert: true,
-      }
-    );
+        await prismaDB.nonVerifiedUser.upsert({
+            where: {
+                email
+            },
+            create: {
+                name: username,
+                email,
+                hashedPassword,
+                otp,
+                otpExpiry
+            },
+            update: {
+                name: username,
+                hashedPassword,
+                otp,
+                otpExpiry
+            }
+        })
+        otpClient.sendOTP()
 
-    // Send OTP
-    otpClient.sendOTP();
-
-    return NextResponse.json({
-      message: "OTP sent, check your email",
-      success: true
-    });
-
-  } catch (error: any) {
-    console.error(error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+        return NextResponse.json({
+            message: "OTP sent, check your email",
+            success: true
+        })
+    } catch (error) {
+        console.log(error);
+        return NextResponse.json({ error: "Something went wrong" }, { status: 500 })
+    }
 }
