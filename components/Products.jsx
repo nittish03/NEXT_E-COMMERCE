@@ -1,48 +1,53 @@
 import React from 'react'
-import axios from 'axios'
-import {assets, products} from '../public/assets/assets'
 import Link from 'next/link'
-import Image from 'next/image'
 
-const Products = () => {
+
+const Products = ({prod}) => {
   return (
-    <div className='bg-[#c2bfbf]'>
-        <div className="min-h-screen  mx-10 flex justify-center items-center">
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-      {products.map((e, index) => (
-    <Link 
-    key={index} 
-    href={`/product?id=${e._id}`}>
+    <div>
+          <div className="p-6">
+    {/* Header */}
+    <h2 className="text-3xl font-bold text-center mb-4">New Collections</h2>
+    <div className="flex justify-center mb-6">
+      <div className="h-1 w-16 bg-red-500"></div>
+    </div>
 
-        <div key={index} className="bg-white shadow-md rounded-lg p-3">
-          {/* Image */}
-          <div className="h-48 w-full overflow-hidden">
-            <Image
-            width={100}
-            height={100}
-              src={e.image[0].src}
-              alt="product"
-              className="w-full h-full object-cover rounded-md"
+    {/* Products Grid */}
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+      {prod.map((product, index) => (
+                        <Link      key={index} href={`/product?id=${product._id}`}>
+
+        <div
+     
+          className="border rounded-lg shadow-md hover:shadow-lg transition-transform p-4 px-4 hover:scale-105 duration-300 ease-in-out flex flex-col items-center bg-white"
+        >
+          {/* Product Image */}
+          <div className="w-full h-50 mb-4 flex items-center justify-center overflow-hidden">
+            <img
+              src={product.image[0].src}
+              alt={product.name}
+              className="h-full object-contain transition-transform duration-300 ease-in-out transform hover:scale-105"
             />
           </div>
-          
-          {/* Text Content */}
-          <div className="mt-2 text-center">
-            <p className="text-sm font-medium text-gray-800">{e.name}</p>
-            <p className="text-xs text-gray-600 mt-1">{e.description}</p>
-          </div>
-          
-          {/* Price and Category */}
-          <div className="mt-2 text-center">
-            <p className="text-sm font-semibold text-gray-900">₹{e.price}</p>
-            <p className="text-xs text-gray-500">{e.category}</p>
+          {/* Product Name */}
+          <h3 className="md:text-base text-xs font-semibold text-center mb-2">
+            {product.name}
+          </h3>
+          {/* Pricing */}
+          <div className="flex justify-between w-full items-center">
+            <span className="text-xl text-red-500 font-bold">
+            ₹{product.price}
+            </span>
+            <span className="text-base text-gray-400 line-through">
+            ₹{product.oldPrice}
+            </span>
           </div>
         </div>
         </Link>
       ))}
     </div>
   </div>
-  </div>
+    </div>
   )
 }
 

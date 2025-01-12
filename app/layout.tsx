@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="text-black bg-[#c2bfbf] font-inter">
+      <body className="text-black bg-[#f6f6f6] font-inter">
         <SessionWrapper>
           <div className="mb-16">
           <Navbar />
