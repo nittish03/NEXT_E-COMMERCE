@@ -17,7 +17,7 @@ const LandingPage = () => {
   return (
     <div>
 <Home/>
-<CCarousel prod={products}/>
+<CCarousel prod={products} category={"Explore"}/>
 <Exclusive/>
 <Products prod={products.slice(0,10)}/>
 <Subscribe/>

@@ -19,7 +19,7 @@ const Page = () => {  // Renamed to capitalize 'Page'
           className="w-full h-60 object-cover"
         />
       </div>
-<CCarousel prod={kidsProducts}/>
+<CCarousel prod={kidsProducts} category={kidsProducts[0].category}/>
 
 
 

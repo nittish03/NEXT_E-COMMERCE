@@ -20,11 +20,11 @@ export default function Navbar() {
     router.push("/");
   };
 
-  const getNavLinkClass = (path) => {
-    return router.pathname === path
-      ? "text-sm font-bold text-red-600"
-      : "text-sm font-bold text-black hover:text-red-600 transition-colors duration-300";
-  };
+  // const getNavLinkClass = (path) => {
+  //   return router.pathname === path
+  //     ? "text-sm font-bold text-red-600"
+  //     : "text-sm font-bold text-black hover:text-red-600 transition-colors duration-300";
+  // };
 
   return (
     <nav className="shadow-md shadow-black text-xl flex justify-between items-center border-b-2 py-2 px-4 text-black bg-[#ffffff] font-inter fixed top-0 left-0 w-full z-10">
@@ -36,10 +36,10 @@ export default function Navbar() {
 
       {/* Desktop Links */}
       <div className="hidden md:flex items-center gap-10">
-        <NavLink className={getNavLinkClass("/")} href="/">Home</NavLink>
-        <NavLink className={getNavLinkClass("/Men")} href="/Men">Men</NavLink>
-        <NavLink className={getNavLinkClass("/Women")} href="/Women">Women</NavLink>
-        <NavLink className={getNavLinkClass("/Kids")} href="/Kids">Kids</NavLink>
+        <NavLink  className="text-sm font-bold hover:text-red-500 active:text-blue-800 transition-all duration-300 nav-link"        href="/">Home</NavLink>
+        <NavLink  className="text-sm font-bold hover:text-red-500 active:text-blue-800 transition-all duration-300 nav-link"      href="/Men">Men</NavLink>
+        <NavLink  className="text-sm font-bold hover:text-red-500 active:text-blue-800 transition-all duration-300 nav-link"    href="/Women">Women</NavLink>
+        <NavLink  className="text-sm font-bold hover:text-red-500 active:text-blue-800 transition-all duration-300 nav-link"        href="/Kids">Kids</NavLink>
       </div>
 
       {/* Menu Toggle for Mobile */}
@@ -97,16 +97,16 @@ export default function Navbar() {
           &times;
         </button>
 
-        <NavLink className={getNavLinkClass("/")} href="/" onClick={() => setIsMenuOpen(false)}>
+        <NavLink className="text-sm font-bold hover:text-red-500 active:text-blue-800 transition-all duration-300 nav-link"   href="/" onClick={() => setIsMenuOpen(false)}>
           Home
         </NavLink>
-        <NavLink className={getNavLinkClass("/Men")} href="/Men" onClick={() => setIsMenuOpen(false)}>
+        <NavLink className="text-sm font-bold hover:text-red-500 active:text-blue-800 transition-all duration-300 nav-link"   href="/Men" onClick={() => setIsMenuOpen(false)}>
           Men
         </NavLink>
-        <NavLink className={getNavLinkClass("/Women")} href="/Women" onClick={() => setIsMenuOpen(false)}>
+        <NavLink className="text-sm font-bold hover:text-red-500 active:text-blue-800 transition-all duration-300 nav-link"   href="/Women" onClick={() => setIsMenuOpen(false)}>
           Women
         </NavLink>
-        <NavLink className={getNavLinkClass("/Kids")} href="/Kids" onClick={() => setIsMenuOpen(false)}>
+        <NavLink className="text-sm font-bold hover:text-red-500 active:text-blue-800 transition-all duration-300 nav-link"   href="/Kids" onClick={() => setIsMenuOpen(false)}>
           Kids
         </NavLink>
 

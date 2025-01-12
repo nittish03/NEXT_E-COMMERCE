@@ -23,7 +23,7 @@ const page = () => {
     className="w-full h-60 object-cover"
   />
 </div>
-<CCarousel prod={menProducts}/>
+<CCarousel prod={menProducts} category={menProducts[0].category}/>
 <Products prod={menProducts}/>
 
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-
+import Image from 'next/image'
 
 const Products = ({prod}) => {
   return (
@@ -23,10 +23,12 @@ const Products = ({prod}) => {
         >
           {/* Product Image */}
           <div className="w-full h-50 mb-4 flex items-center justify-center overflow-hidden">
-            <img
+            <Image
+            width={500}
+            height={500}
               src={product.image[0].src}
               alt={product.name}
-              className="h-full object-contain transition-transform duration-300 ease-in-out transform hover:scale-105"
+              className="max-w-[200%] object-contain transition-transform duration-300 ease-in-out transform hover:scale-105"
             />
           </div>
           {/* Product Name */}
@@ -35,10 +37,10 @@ const Products = ({prod}) => {
           </h3>
           {/* Pricing */}
           <div className="flex justify-between w-full items-center">
-            <span className="text-xl text-red-500 font-bold">
+            <span className="md:text-xl text-sm text-red-500 font-bold">
             ₹{product.price}
             </span>
-            <span className="text-base text-gray-400 line-through">
+            <span className="md:text-base text-xs text-gray-400 line-through">
             ₹{product.oldPrice}
             </span>
           </div>

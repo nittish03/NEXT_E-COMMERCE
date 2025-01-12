@@ -22,11 +22,11 @@ const responsive = {
       items: 1,
     },
   };
-const CCarousel = ({prod}) => {
+const CCarousel = ({prod,category}) => {
   return (
     <div>  <div className="bg-[#f8f8f8]">
     <div className="min-h-screen mx-4 lg:mx-10 py-10">
-      <h2 className="text-3xl font-bold text-center mb-8">{prod[0].category} Products</h2>
+      <h2 className="text-3xl font-bold text-center mb-8">{category} Products</h2>
       <Carousel
         responsive={responsive}
         infinite={true}
@@ -56,13 +56,13 @@ const CCarousel = ({prod}) => {
   
                 {/* Text Content */}
                 <div className="text-center mt-4">
-                  <p className="text-base font-semibold text-[#333333]">{e.name}</p>
+                  <p className="md:text-base text-sm font-semibold text-[#333333]">{e.name}</p>
                 </div>
   
                 {/* Price Section */}
                 <div className="mt-2 flex flex-col justify-center items-center text-center">
                   <div className='flex justify-between items-center w-full'>
-                    <p className="text-lg font-bold text-red-500">₹{e.price}</p>
+                    <p className="md:text-lg text-sm font-bold text-red-500">₹{e.price}</p>
                     <p className="text-sm text-gray-500 line-through">₹{e.oldPrice}</p>
                   </div>
                   <div className='flex justify-center items-center'>
