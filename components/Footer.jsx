@@ -34,12 +34,12 @@ const Footer = () => {
               </li>
             </ul>
             <div className="flex justify-center items-center gap-6 mb-6">
-              <a href="https://github.com/nittish03" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform ease-in-out duration-300">
+              <Link href="https://github.com/nittish03" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform ease-in-out duration-300">
                 <VscGithub className="h-8 w-8 text-gray-800 hover:text-orange-600 transition-colors duration-300" />
-              </a>
-              <a href="https://linkedin.com/in/nittish03" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform ease-in-out duration-300">
+              </Link>
+              <Link href="https://linkedin.com/in/nittish03" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform ease-in-out duration-300">
                 <FaLinkedin className="h-8 w-8 text-blue-700 hover:text-orange-600 transition-colors duration-300" />
-              </a>
+              </Link>
             </div>
             <div className='flex justify-center items-center'>
     <p className="w-[90%]  h-[4px] my-10 bg-black"></p>

@@ -1,29 +1,30 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { products } from "../../public/assets/assets";
-import CCarousel from '@/components/CCarousel'
+import CCarousel from "@/components/CCarousel";
+import Link from "next/link";
 
-const Page = () => {
+// Suspense component used to manage async loading
+const PageContent = () => {
   const searchParams = useSearchParams();
-  const id = searchParams.get("id");
+  const id = searchParams?.get("id");
   const product = products.find((product) => product._id === id);
-  const filteredProducts = products.filter(e=>e.category === product.category)
+  const filteredProducts = products.filter((e) => e.category === product?.category);
 
-  const [selectedImage, setSelectedImage] = useState(product.image[0]);
+  const [selectedImage, setSelectedImage] = useState(product?.image[0]);
 
   return (
-    <>
     <div className="bg-white min-h-screen p-6">
       {/* Breadcrumb Navigation */}
       <nav className="mb-4 text-sm text-gray-600">
         <ul className="flex items-center space-x-2">
-          <li><a href="/" className="hover:underline">HOME</a></li>
+          <li><Link href="/" className="hover:underline">HOME</Link></li>
           <li>/</li>
-          <li><a href="/shop/kid" className="hover:underline">{product.category}</a></li>
+          <li><Link href="/shop/kid" className="hover:underline">{product?.category}</Link></li>
           <li>/</li>
-          <li className="font-semibold">{product.name}</li>
+          <li className="font-semibold">{product?.name}</li>
         </ul>
       </nav>
 
@@ -31,8 +32,8 @@ const Page = () => {
         {/* Image Section */}
         <div className="flex-1 flex flex-col justify-center items-center">
           <div className="flex justify-center items-center space-x-4">
-            <div className="flex flex-col  space-y-2">
-              {product.image.map((img, index) => (
+            <div className="flex flex-col space-y-2">
+              {product?.image.map((img, index) => (
                 <Image
                   key={index}
                   className={`w-20 h-20 object-contain rounded-md cursor-pointer border ${selectedImage === img ? "border-blue-500" : "border-transparent"}`}
@@ -45,9 +46,9 @@ const Page = () => {
               ))}
             </div>
             <Image
-              className="rounded-lg shadow-md  h-[180%]"
+              className="rounded-lg shadow-md h-[180%]"
               src={selectedImage}
-              alt={product.name}
+              alt={product?.name}
               width={400}
               height={400}
             />
@@ -56,7 +57,7 @@ const Page = () => {
 
         {/* Product Info Section */}
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">{product.name}</h1>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">{product?.name}</h1>
 
           {/* Rating and Reviews */}
           <div className="flex items-center mb-4">
@@ -68,17 +69,17 @@ const Page = () => {
 
           {/* Price Section */}
           <div className="mb-4">
-            <span className="text-lg text-gray-500 line-through mr-2">₹{product.oldPrice}</span>
-            <span className="text-2xl text-red-600 font-bold">₹{product.price}</span>
+            <span className="text-lg text-gray-500 line-through mr-2">₹{product?.oldPrice}</span>
+            <span className="text-2xl text-red-600 font-bold">₹{product?.price}</span>
           </div>
 
-          <p className="text-gray-600 mb-6">{product.description}</p>
+          <p className="text-gray-600 mb-6">{product?.description}</p>
 
           {/* Size Selection */}
           <div className="mb-6">
             <span className="block text-gray-700 font-semibold mb-2">Select Size</span>
             <div className="flex space-x-4">
-              {product.sizes.map((size) => (
+              {product?.sizes.map((size) => (
                 <button key={size} className="border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-100">
                   {size}
                 </button>
@@ -95,17 +96,20 @@ const Page = () => {
           <div className="mt-6">
             <div className="flex items-center mb-2">
               <span className="font-semibold text-gray-700">Category:</span>
-              <span className="ml-2 text-gray-600">{product.category}</span>
+              <span className="ml-2 text-gray-600">{product?.category}</span>
             </div>
-
           </div>
         </div>
       </div>
       <CCarousel prod={filteredProducts} category={"Related"} />
     </div>
-    </>
-
   );
 };
+
+const Page = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <PageContent />
+  </Suspense>
+);
 
 export default Page;

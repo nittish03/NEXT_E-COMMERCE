@@ -93,19 +93,20 @@ const handleOTP = async (e: FormEvent<HTMLFormElement>) => {
   return;
 }
 
-const handleResendOTP = async(e:any) =>{
+const handleResendOTP = async (e: React.FormEvent) => {
   e.preventDefault();
-  try{
-    const response = await axios.post("/api/auth/resend-otp",{email})
-    if(response){0
-      toast.success("OTP Resent Successfully")
-    }else{
-      toast.error("Failed to resend OTP")
+  try {
+    const response = await axios.post("/api/auth/resend-otp", { email });
+    if (response) {
+      toast.success("OTP Resent Successfully");
+    } else {
+      toast.error("Failed to resend OTP");
     }
-  }catch(e){
-    console.log(e);
+  } catch (error) {
+    console.log(error);
+    toast.error("An error occurred");
   }
-}
+};
 
   return (
     !register?
