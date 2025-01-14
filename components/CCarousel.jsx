@@ -25,7 +25,7 @@ const responsive = {
 const CCarousel = ({prod,category}) => {
   return (
     <div>  <div className="bg-[#f8f8f8]">
-    <div className="min-h-screen mx-4 lg:mx-10 py-10">
+    <div className=" mx-4 lg:mx-10 py-10">
       <h2 className="text-3xl font-bold text-center mb-8">{category} Products</h2>
       <Carousel
         responsive={responsive}

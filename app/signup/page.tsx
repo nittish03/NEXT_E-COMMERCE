@@ -111,8 +111,8 @@ const handleResendOTP = async (e: React.FormEvent) => {
   return (
     !register?
     <>
-    <div className='h-fit w-screen flex justify-center items-center'>
-      <div className='custom-shadow w-[320px] md:w-[450px] mt-5 py-5 h-fit border rounded-lg flex flex-col items-center justify-around font-sans font-light'>
+    <div className='h-fit w-full flex justify-center text-white  items-center'>
+      <div className='shadow-2xl shadow-black bg-[#000000] m-10 w-[320px] md:w-[450px] mt-5 py-5 h-fit border rounded-lg flex flex-col items-center justify-around font-sans font-light'>
           <h1 className='text-2xl tracking-wide'>SIGN UP</h1>
           <h3 className='text-sm mb-5'>to continue</h3>
           <form onSubmit={handleSubmit} className='w-[80%] flex flex-col items-center justify-center gap-4'>

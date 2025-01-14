@@ -68,11 +68,11 @@ const LoginPage = () => {
 }
 
   return (
-    <div className='h-fit  overflow-hidden text-white w-screen flex justify-center items-center'>
-      <div className='custom-shadow w-[320px] md:w-[450px] py-5 h-fit mt-4  border rounded-lg flex flex-col items-center justify-around font-sans font-light'>
+    <div className='h-fit  overflow-hidden  text-white  m-10  w-full flex justify-center items-center'>
+      <div className='shadow-xl  m-10 shadow-black bg-[#000000] w-[320px] md:w-[450px] py-5 h-fit mt-4  border rounded-lg flex flex-col items-center justify-around font-sans font-light'>
           <h1 className='text-2xl tracking-wide'>{"SIGN IN"}</h1>
           <h3 className='text-sm mb-5'>to continue</h3>
-          <form onSubmit={handleSubmit} className='w-[80%] flex flex-col items-center justify-center gap-8'>
+          <form onSubmit={handleSubmit} className='w-[80%]  flex flex-col items-center justify-center gap-8'>
 
               <CustomInput type='email' placeholder='email' onChange={(e) => {
                   setError('');
@@ -94,7 +94,7 @@ const LoginPage = () => {
               </div>
 
           </form>
-          <div className='w-[90%] h-[1px] bg-white my-2'></div>
+          <div className='w-[90%] h-[1px] bg-[#505050] my-2'></div>
           <div className='flex flex-col justify-center items-center gap-3'>
               <div className='w-full text-center'>or</div>
               <div className='w-full flex justify-center items-center'>

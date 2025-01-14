@@ -5,9 +5,13 @@ import Image from "next/image";
 import { products } from "../../public/assets/assets";
 import CCarousel from "@/components/CCarousel";
 import Link from "next/link";
+import { useAppContext } from "@/context";
 
 // Suspense component used to manage async loading
 const PageContent = () => {
+  useAppContext;
+  const { cartCount, setCartCount,addToCart} = useAppContext();
+  
   const searchParams = useSearchParams();
   const id = searchParams?.get("id");
   const product = products.find((product) => product._id === id);
@@ -75,20 +79,10 @@ const PageContent = () => {
 
           <p className="text-gray-600 mb-6">{product?.description}</p>
 
-          {/* Size Selection */}
-          <div className="mb-6">
-            <span className="block text-gray-700 font-semibold mb-2">Select Size</span>
-            <div className="flex space-x-4">
-              {product?.sizes.map((size) => (
-                <button key={size} className="border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-100">
-                  {size}
-                </button>
-              ))}
-            </div>
-          </div>
+          <ProductSizeSelector product={product} />
 
           {/* Add to Cart Button */}
-          <button className="w-full bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition duration-300">
+          <button onClick={()=>{addToCart(id)}} className="w-full bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition duration-300">
             ADD TO CART
           </button>
 
@@ -113,3 +107,32 @@ const Page = () => (
 );
 
 export default Page;
+
+const ProductSizeSelector = ({ product }) => {
+  const [selectedSize, setSelectedSize] = useState(null)
+
+  const handleSizeSelect = (size) => {
+    setSelectedSize(size)
+  }
+
+  return (
+    <div className="mb-6">
+      <span className="block text-gray-700 font-semibold mb-2">Select Size</span>
+      <div className="flex space-x-4">
+        {product?.sizes.map((size) => (
+          <button
+            key={size}
+            onClick={() => handleSizeSelect(size)}
+            className={`border px-4 py-2 rounded-md transition-colors duration-200 ${
+              selectedSize === size
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+            }`}
+          >
+            {size}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
