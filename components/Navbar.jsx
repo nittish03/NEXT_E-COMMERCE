@@ -12,7 +12,7 @@ import { FaCartPlus } from "react-icons/fa";
 import { useAppContext } from "@/context";
 import axios from "axios";
 export default function Navbar() {
-  useAppContext;
+
   const { cartCount, setCartCount } = useAppContext();
 
   const router = useRouter();
@@ -40,7 +40,7 @@ if(session){
 }
 
 
-  },[cartCount,session])
+  },[cartCount,session,setCartCount])
 
 
   return (

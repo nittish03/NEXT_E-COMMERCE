@@ -8,8 +8,8 @@ import Image from 'next/image'
 import { useAppContext } from "@/context";
 import Link from 'next/link'
 
-const page = () => {
-  const { data: session } = useSession()
+const Page = () => {
+  const { data: session } = useSession();
   const [cartData, setCartData] = useState([])
   const [filteredProducts, setFilteredProducts] = useState([])
   const [totalPrice,setTotalPrice] = useState(0)
@@ -39,7 +39,7 @@ if(cartCount > 0){
 }
 
 
-  }, [session, products,cartCount])
+  }, [session,cartCount])
 
   const handleRemove = async(id)=>{
     const loading = toast.loading("Removing product")
@@ -149,4 +149,4 @@ if(cartCount > 0){
   )
 }
 
-export default page
+export default Page

@@ -9,7 +9,6 @@ import { useAppContext } from "@/context";
 
 // Suspense component used to manage async loading
 const PageContent = () => {
-  useAppContext;
   const { cartCount, setCartCount,addToCart} = useAppContext();
   
   const searchParams = useSearchParams();
