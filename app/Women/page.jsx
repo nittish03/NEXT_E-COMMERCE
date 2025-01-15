@@ -20,6 +20,7 @@ const page = () => {
                         src={banner_women}
                         alt="Woen's Fashion"
                         className="w-full h-60 object-cover"
+
                       />
                     </div>
 <CCarousel prod={womenProducts} category={womenProducts[0].category}/>

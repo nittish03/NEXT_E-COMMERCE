@@ -45,7 +45,6 @@ if(cartCount > 0){
     const loading = toast.loading("Removing product")
     try{
         const response = await axios.post("/api/Cart/remove-product",{productId:id})
-        console.log(response);
         toast.dismiss(loading);
         toast.success("Product removed successfully")
         setCartCount(cartCount - 1)

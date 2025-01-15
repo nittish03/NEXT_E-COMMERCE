@@ -17,6 +17,7 @@ const Page = () => {  // Renamed to capitalize 'Page'
           src={banner_kids}
           alt="Men's Fashion"
           className="w-full h-60 object-cover"
+
         />
       </div>
 <CCarousel prod={kidsProducts} category={kidsProducts[0].category}/>

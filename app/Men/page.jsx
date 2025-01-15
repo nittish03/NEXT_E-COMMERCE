@@ -21,6 +21,7 @@ const page = () => {
     src={banner_mens}
     alt="Men's Fashion"
     className="w-full h-60 object-cover"
+
   />
 </div>
 <CCarousel prod={menProducts} category={menProducts[0].category}/>

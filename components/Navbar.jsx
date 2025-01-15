@@ -23,7 +23,6 @@ export default function Navbar() {
     toast.success("Logged out successfully");
     router.push("/");
   };
-
   // const getNavLinkClass = (path) => {
   //   return router.pathname === path
   //     ? "text-sm font-bold text-red-600"
@@ -40,8 +39,8 @@ if(session){
 }
 
 
-  },[cartCount,session,setCartCount])
 
+  },[cartCount,session,setCartCount])
 
   return (
     <nav className="shadow-md shadow-black text-xl flex justify-between items-center border-b-2 py-2 px-4 text-black bg-[#ffffff] font-inter fixed top-0 left-0 w-full z-10">
@@ -105,9 +104,9 @@ if(session){
         {session && (
           <div className="flex items-center gap-2">
             <span className="font-medium text-sm">
-              {session.user?.name?.split(" ")[0]}
+              {session.user?.name}
             </span>
-            <button className="flex items-center" onClick={handleLogout}>
+            <Link className="flex items-center" href={"/profile"}>
               <div>
                 {session?.user?.image ? (
                   <Image
@@ -121,7 +120,7 @@ if(session){
                   <CgProfile color="green" size={40} />
                 )}
               </div>
-            </button>
+            </Link>
               <div onClick={()=>{router.push('/cart')}} className="relative inline-block hover:cursor-pointer">
               <FaCartPlus className="mx-5" size={35}/>
               <span
@@ -189,8 +188,8 @@ if(session){
           {session && (
             <div className="flex flex-col items-center space-y-2">
               <span className="font-medium text-sm">{session.user?.name}</span>
-              <button
-                onClick={handleLogout}
+              <Link
+                href={"/profile"}
                 className="flex items-center gap-2 bg-white text-black rounded-full px-4 py-1"
               >
                 <div>
@@ -206,8 +205,7 @@ if(session){
                     <CgProfile color="green" size={30} />
                   )}
                 </div>
-                Logout
-              </button>
+              </Link>
               <div onClick={()=>{router.push("/cart")}} className="relative inline-block hover:cursor-pointer">
               <FaCartPlus className="mx-5" size={35}/>
               <span
