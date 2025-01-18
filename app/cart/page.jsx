@@ -10,66 +10,70 @@ import Link from 'next/link'
 
 const Page = () => {
   const { data: session } = useSession();
-  const [cartData, setCartData] = useState([])
-  const [filteredProducts, setFilteredProducts] = useState([])
-  const [totalPrice,setTotalPrice] = useState(0)
-  const { cartCount, setCartCount,addToCart } = useAppContext();
+  const [cartData, setCartData] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const { cartCount, setCartCount, addToCart } = useAppContext();
 
   useEffect(() => {
-if(cartCount > 0){
+    if (cartCount > 0) {
+      const getTotalProducts = async () => {
+        const response = await axios.get("/api/Cart/total-products");
+        const cartItems = response.data.cart.productIds.map(e => {
+          return { productId: e.productId, quantity: e.quantity };
+        });
 
-    const getTotalProducts = async () => {
-      const response = await axios.get("/api/Cart/total-products")
-      const cartItems = response.data.cart.productIds.map(e => {
-        return { productId: e.productId, quantity: e.quantity }
-      })
-      setCartData(cartItems)
+        setCartData(cartItems);
 
-      // Filter products based on cartData
-      const matchingProducts = products.filter(product =>
-        cartItems.some(cartItem => cartItem.productId === product._id)
-      )
-      setFilteredProducts(matchingProducts)
-      console.log(matchingProducts)
+        // Filter products based on cartData
+        const matchingProducts = products.filter(product =>
+          cartItems.some(cartItem => cartItem.productId === product._id)
+        );
+        setFilteredProducts(matchingProducts);
+
+        // Calculate total price
+        const total = cartItems.reduce((acc, item) => {
+          const product = products.find(p => p._id === item.productId);
+          if (product) {
+            acc += product.price * item.quantity;
+          }
+          return acc;
+        }, 0);
+        setTotalPrice(total);
+      };
+
+      if (session) {
+        getTotalProducts();
+      }
     }
+  }, [session, cartCount]);
 
-    if (session) {
-      getTotalProducts()
+  const handleRemove = async (id) => {
+    const loading = toast.loading("Removing product");
+    try {
+      await axios.post("/api/Cart/remove-product", { productId: id });
+      toast.dismiss(loading);
+      toast.success("Product removed successfully");
+      setCartCount(cartCount - 1);
+    } catch (e) {
+      console.error(e);
+      toast.dismiss(loading);
+      toast.error("Failed to remove product");
     }
-}
+  };
 
-
-  }, [session,cartCount])
-
-  const handleRemove = async(id)=>{
-    const loading = toast.loading("Removing product")
-    try{
-        const response = await axios.post("/api/Cart/remove-product",{productId:id})
-        toast.dismiss(loading);
-        toast.success("Product removed successfully")
-        setCartCount(cartCount - 1)
-    }catch(e){
-        console.log(e);
-        toast.dismiss(loading);
-        toast.error("failed to remove product")
+  const handleDelete = async (id) => {
+    const loading = toast.loading("Removing product");
+    try {
+      await axios.post("/api/Cart/remove-product", { productId: id });
+      toast.dismiss(loading);
+      toast.success("Product removed successfully");
+    } catch (e) {
+      console.error(e);
+      toast.dismiss(loading);
+      toast.error("Failed to remove product");
     }
-  }
-
-
-
-  const handleDelete = async(id) =>{
-    const loading = toast.loading("Removing product")
-    try{
-        const response = await axios.post("/api/Cart/remove-product",{productId:id})
-        console.log(response);
-        toast.dismiss(loading);
-        toast.success("Product removed successfully")
-    }catch(e){
-        console.log(e);
-        toast.dismiss(loading);
-        toast.error("failed to remove product")
-    }
-  }
+  };
 
   return (
     <>
@@ -82,54 +86,52 @@ if(cartCount > 0){
           <div className="space-y-6">
             {/* Map through filtered products */}
             {filteredProducts.map((product) => {
-              // Find the corresponding cart item to get the quantity
-              const cartItem = cartData.find(item => item.productId === product._id)
-              const quantity = cartItem ? cartItem.quantity : 1
+              const cartItem = cartData.find(item => item.productId === product._id);
+              const quantity = cartItem ? cartItem.quantity : 1;
 
               return (
-                  
-                  <div key={product._id} className="flex items-center justify-between p-4 border rounded-lg shadow-lg">
+                <div key={product._id} className="flex items-center justify-between p-4 border rounded-lg shadow-lg">
                   <div className="flex-shrink-0">
                     {/* Product Image */}
-                    <Link  href={`/product?id=${product._id}`}>
-
-                    <Image
-                      src={product.image[0].src || "/assets/product-placeholder.jpg"}
-                      alt={product.name}
-                      width={100}
-                      height={100}
-                      className="object-cover rounded"
-                    />
+                    <Link href={`/product?id=${product._id}`}>
+                      <Image
+                        src={product.image[0].src || "/assets/product-placeholder.jpg"}
+                        alt={product.name}
+                        width={100}
+                        height={100}
+                        className="object-cover rounded"
+                      />
                     </Link>
                   </div>
                   <div className="flex-1 ml-4">
-                  <Link  href={`/product?id=${product._id}`}>
-
-                    <p className="text-lg font-semibold">{product.name}</p>
-                    <p className="text-gray-500">₹{product.price}</p>
+                    <Link href={`/product?id=${product._id}`}>
+                      <p className="text-lg font-semibold">{product.name}</p>
+                      <p className="text-gray-500">₹{product.price * quantity}</p>
                     </Link>
                     <div className="flex items-center space-x-4 mt-2">
-                      <button onClick={()=>{handleRemove(product._id)}}
+                      <button
+                        onClick={() => { handleRemove(product._id) }}
                         className="text-lg font-semibold text-gray-700 hover:text-gray-900"
-                        // Decrease quantity logic (for later implementation)
                       >
                         -
                       </button>
                       <span className="text-lg font-semibold">{quantity}</span>
-                      <button onClick={()=>{addToCart(product._id)}}
+                      <button
+                        onClick={() => { addToCart(product._id) }}
                         className="text-lg font-semibold text-gray-700 hover:text-gray-900"
-                        // Increase quantity logic (for later implementation)
                       >
                         +
                       </button>
                     </div>
                   </div>
-                  <button onClick={()=>{handleDelete(product._id)}} className="text-red-500 hover:text-red-700 font-semibold">
+                  <button
+                    onClick={() => { handleDelete(product._id) }}
+                    className="text-red-500 hover:text-red-700 font-semibold"
+                  >
                     Remove
                   </button>
                 </div>
-
-              )
+              );
             })}
           </div>
         </div>
@@ -145,7 +147,7 @@ if(cartCount > 0){
         </button>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Page
+export default Page;
