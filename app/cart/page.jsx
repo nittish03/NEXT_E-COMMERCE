@@ -15,7 +15,34 @@ const Page = () => {
   const [totalPrice, setTotalPrice] = useState(0);
   const { cartCount, setCartCount, addToCart } = useAppContext();
 
-  useEffect(() => {
+
+
+  const handleRemove = async (id) => {
+    const loading = toast.loading("Removing product");
+    try {
+      await axios.post("/api/Cart/remove-product", { productId: id });
+      toast.dismiss(loading);
+      toast.success("Product removed successfully");
+      setCartCount(cartCount - 1);
+    } catch (e) {
+      console.error(e);
+      toast.dismiss(loading);
+      toast.error("Failed to remove product");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    const loading = toast.loading("Removing product");
+    try {
+      await axios.post("/api/Cart/delete-product", { productId: id });
+      toast.dismiss(loading);
+      toast.success("Product removed successfully");
+    } catch (e) {
+      console.error(e);
+      toast.dismiss(loading);
+      toast.error("Failed to remove product");
+    }
+  };  useEffect(() => {
     if (cartCount > 0) {
       const getTotalProducts = async () => {
         const response = await axios.get("/api/Cart/total-products");
@@ -46,34 +73,7 @@ const Page = () => {
         getTotalProducts();
       }
     }
-  }, [session, cartCount]);
-
-  const handleRemove = async (id) => {
-    const loading = toast.loading("Removing product");
-    try {
-      await axios.post("/api/Cart/remove-product", { productId: id });
-      toast.dismiss(loading);
-      toast.success("Product removed successfully");
-      setCartCount(cartCount - 1);
-    } catch (e) {
-      console.error(e);
-      toast.dismiss(loading);
-      toast.error("Failed to remove product");
-    }
-  };
-
-  const handleDelete = async (id) => {
-    const loading = toast.loading("Removing product");
-    try {
-      await axios.post("/api/Cart/remove-product", { productId: id });
-      toast.dismiss(loading);
-      toast.success("Product removed successfully");
-    } catch (e) {
-      console.error(e);
-      toast.dismiss(loading);
-      toast.error("Failed to remove product");
-    }
-  };
+  }, [session, cartCount, setCartCount, addToCart,filteredProducts,totalPrice]);
 
   return (
     <>
