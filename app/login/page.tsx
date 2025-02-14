@@ -68,7 +68,7 @@ const LoginPage = () => {
 }
 
   return (
-    <div className='h-fit  overflow-hidden  text-white  m-10  w-full flex justify-center items-center'>
+    <div className='h-full  overflow-hidden  text-white  m-10  flex justify-center items-center'>
       <div className='shadow-xl  m-10 shadow-black bg-[#000000] w-[320px] md:w-[450px] py-5 h-fit mt-4  border rounded-lg flex flex-col items-center justify-around font-sans font-light'>
           <h1 className='text-2xl tracking-wide'>{"SIGN IN"}</h1>
           <h3 className='text-sm mb-5'>to continue</h3>
