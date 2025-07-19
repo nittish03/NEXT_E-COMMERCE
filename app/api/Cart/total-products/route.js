@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-
-
 import { getServerSession } from "next-auth";
 import { authOptions } from '@/lib/authOptions';
 import { prismaDB } from "@/lib/prismaDB";
@@ -11,7 +9,6 @@ export async function GET() {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   const { email } = session.user;
-
 
   try {
     const cart = await prismaDB.cart.findUnique({
@@ -27,7 +24,6 @@ export async function GET() {
     } else {
       return NextResponse.json({ totalProducts: 0, cart: null });
     }
-
   } catch (e) {
     console.log(e);
     return NextResponse.json(

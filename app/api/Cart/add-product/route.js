@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-
-
 import { getServerSession } from "next-auth";
 import { authOptions } from '@/lib/authOptions';
 import { prismaDB } from "@/lib/prismaDB";
@@ -12,8 +10,6 @@ export async function POST(req) {
   const { email } = session.user;
   const data = await req.json();
   const { id } = data;
-
-
 
   try {
     let cart = await prismaDB.cart.findUnique({
@@ -28,10 +24,8 @@ export async function POST(req) {
 
       if (productIndex > -1) {
         productIds[productIndex].quantity += 1;
-
       } else {
         productIds.push({ productId: id, quantity: 1 });
-
       }
 
       cart = await prismaDB.cart.update({
