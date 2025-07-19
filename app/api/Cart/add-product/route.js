@@ -1,42 +1,52 @@
-import connectDb from "@/mongoDb/connectDb";
-import Cart from "@/models/cart";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { AuthOptions } from "@/lib/authOption";
-
+import { authOptions } from '@/lib/authOptions';
+import { prismaDB } from "@/lib/prismaDB";
 export async function POST(req) {
-  const session = await getServerSession(AuthOptions);
-  const { email } = session.user;  // Destructuring for readability
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+  const { email } = session.user;
   const data = await req.json();
-  const { id } = data;  // Assume `id` is the product ID being sent
-
-  await connectDb();
+  const { id } = data;
 
   try {
-    let cart = await Cart.findOne({ email });
+    let cart = await prismaDB.cart.findUnique({
+      where: { userEmail: email },
+    });
 
     if (cart) {
-      // Check if the product already exists in the cart
-      const productIndex = cart.productIds.findIndex(item => item.productId.toString() === id);
+      const productIds = cart.productIds || [];
+      const productIndex = productIds.findIndex(
+        (item) => item.productId === id
+      );
 
       if (productIndex > -1) {
-        // If the product exists, increase its quantity by 1
-        cart.productIds[productIndex].quantity += 1;
+        productIds[productIndex].quantity += 1;
       } else {
-        // If the product does not exist, add it with quantity 1
-        cart.productIds.push({ productId: id, quantity: 1 });
+        productIds.push({ productId: id, quantity: 1 });
       }
 
-      cart.updatedAt = new Date();  // Update the updatedAt field
-      await cart.save();
+      cart = await prismaDB.cart.update({
+        where: { userEmail: email },
+        data: { productIds },
+      });
     } else {
-      // If the cart does not exist, create a new cart with the product
-      cart = await Cart.create({ email, productIds: [{ productId: id, quantity: 1 }] });
+      cart = await prismaDB.cart.create({
+        data: {
+          user: { connect: { email } },
+          productIds: [{ productId: id, quantity: 1 }],
+        },
+      });
     }
 
     return NextResponse.json({ cart });
   } catch (e) {
     console.log(e);
-    return NextResponse.json({ message: "Something went wrong in Cart", error: e.message },{status:500});
+    return NextResponse.json(
+      { message: "Something went wrong in Cart", error: e.message },
+      { status: 500 }
+    );
   }
 }

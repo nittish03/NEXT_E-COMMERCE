@@ -11,33 +11,48 @@ import { FaLinkedin } from "react-icons/fa";
 import { VscGithub } from "react-icons/vsc";
 
 const Page = () => {
-    const {data:session} = useSession();
+    const {data:session, status} = useSession();
     const [edit,setEdit] = useState(false);
-    const [name, setName] = useState(session?.user?.name);
+    const [name, setName] = useState("");
     const router = useRouter();
 
+    useEffect(() => {
+        if (session?.user?.name) {
+            setName(session.user.name);
+        }
+    }, [session]);
 
+    if (status === "loading") {
+        return <p>Loading...</p>;
+    }
 
-
-
-
-
-
+    if (status === "unauthenticated") {
+        router.push("/");
+        return null;
+    }
 
     const handleSave = async() =>{
         const loading = toast.loading("Saving Name")
-        try{
-            const response = await axios.post("/api/Profile",{newName:name});
-            setName(response.data.newName)
+        try {
+            if (!name.trim()) {
+                toast.error("Name cannot be empty");
+                return;
+            }
+            const response = await axios.post("/api/Profile", { newName: name });
+            setName(response.data.newName);
             toast.dismiss(loading);
             setEdit(false);
-            session.user.name=response.data.newName
-            toast.success("New Name saved successfully")
-            toast.success(" Changes will take place when you log in again")
-        }catch(e){
-            console.log(e)
+            session.user.name = response.data.newName;
+            toast.success("New Name saved successfully");
+            toast.success("Changes will take place when you log in again");
+        } catch (e) {
+            console.error(e);
             toast.dismiss(loading);
-            toast.error("Failed to save name")
+            if (e.response) {
+                toast.error(e.response.data.message || "Failed to save name");
+            } else {
+                toast.error("An unexpected error occurred. Please try again.");
+            }
         }
     }
 
@@ -80,14 +95,26 @@ const Page = () => {
             </div>
             </>
 
-: <>
-<div className='flex justify-center items-center gap-4'>
-<input value={name || " "} placeholder={session.user.name || name} type="text" onChange={(e)=>{setName(e.target.value)}} className='border-2 border-black rounded-sm p-1' />
-<button onClick={()=>{
-    handleSave()
-}} className='bg-blue-600 px-2 py-1 rounded-md text-white'>Save</button>
-</div>
-</>
+: 
+            <div className='flex justify-center items-center gap-4'>
+                <input 
+                    value={name} 
+                    onChange={(e) => setName(e.target.value)} 
+                    className='text-3xl font-semibold text-gray-800 bg-transparent border-b-2 border-gray-400 focus:outline-none focus:border-blue-500'
+                />
+                <button 
+                    onClick={handleSave} 
+                    className='bg-blue-600 px-4 py-2 rounded-md text-white font-semibold hover:bg-blue-700 transition-colors duration-300'
+                >
+                    Save
+                </button>
+                <button 
+                    onClick={() => setEdit(false)} 
+                    className='bg-gray-400 px-4 py-2 rounded-md text-white font-semibold hover:bg-gray-500 transition-colors duration-300'
+                >
+                    Cancel
+                </button>
+            </div>
             }
             <div className='flex justify-center items-center gap-8 mt-4'>
 

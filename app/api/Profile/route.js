@@ -1,52 +1,51 @@
-import connectDb from "@/mongoDb/connectDb";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { AuthOptions } from "@/lib/authOption";
-import User from "@/models/userModel";
+import { authOptions } from "@/lib/authOptions";
+import { prismaDB } from "@/lib/prismaDB";
 
 export async function POST(req) {
-    try {
-        const data = await req.json();
-        const { newName } = data;
+  try {
+    const data = await req.json();
+    const { newName } = data;
 
-        // Log the newName to ensure it's received correctly
-        console.log("New name to update:", newName);
-
-        const session = await getServerSession(AuthOptions);
-        const { email } = session.user;
-
-        console.log("User email:", email);
-
-        await connectDb();
-
-        // Update the name field with the correct value
-        const updatedUser = await User.findOneAndUpdate(
-            { email: email },
-            { name: newName }, // Using trim() to clean up any extra spaces
-            { new: true }
-        );
-
-        if (!updatedUser) {
-            return NextResponse.json({
-                message: "User not found",
-                error: "User with this email does not exist",
-            }, { status: 404 });
-        }
-
-        console.log("Updated user:", updatedUser);
-
-        return NextResponse.json({
-            message: "User updated successfully",
-            user: updatedUser,
-            newName: updatedUser.name,
-        });
-
-    } catch (e) {
-        console.log("Error:", e);
-        return NextResponse.json({
-            message: "Something went wrong while changing name",
-            error: e.message,
-        }, { status: 500 });
+    if (typeof newName !== 'string' || !newName.trim()) {
+        return NextResponse.json({ message: "Invalid name" }, { status: 400 });
     }
-}
 
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+    const { email } = session.user;
+
+    const updatedUser = await prismaDB.user.update({
+      where: { email: email },
+      data: { name: newName },
+    });
+
+    if (!updatedUser) {
+      return NextResponse.json(
+        {
+          message: "User not found",
+          error: "User with this email does not exist",
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      message: "User updated successfully",
+      user: updatedUser,
+      newName: updatedUser.name,
+    });
+  } catch (e) {
+    console.log("Error:", e);
+    return NextResponse.json(
+      {
+        message: "Something went wrong while changing name",
+        error: e.message,
+      },
+      { status: 500 }
+    );
+  }
+}

@@ -1,31 +1,34 @@
-import connectDb from "@/mongoDb/connectDb";
-import Cart from "@/models/cart";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { AuthOptions } from "@/lib/authOption";
+import { authOptions } from '@/lib/authOptions';
+import { prismaDB } from "@/lib/prismaDB";
 
 export async function GET() {
-  const session = await getServerSession(AuthOptions);
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
   const { email } = session.user;
-  await connectDb();
 
   try {
-    // Find the cart associated with the user's email
-    const cart = await Cart.findOne({ email });
+    const cart = await prismaDB.cart.findUnique({
+      where: { userEmail: email },
+    });
 
     if (cart) {
-        
-        // Calculate the total number of products in the cart
-        const totalProducts = cart.productIds.reduce((total, product) => total + product.quantity, 0);
-        
-        return NextResponse.json({ totalProducts,cart });
-    }else{
-        return NextResponse.json({ totalProducts: 0, cart: [] });
+      const totalProducts = (cart.productIds || []).reduce(
+        (total, product) => total + product.quantity,
+        0
+      );
+      return NextResponse.json({ totalProducts, cart });
+    } else {
+      return NextResponse.json({ totalProducts: 0, cart: null });
     }
-
   } catch (e) {
     console.log(e);
-    return NextResponse.json({ message: "Something went wrong" },{status:(500)});
+    return NextResponse.json(
+      { message: "Something went wrong", error: e.message },
+      { status: 500 }
+    );
   }
 }
-
