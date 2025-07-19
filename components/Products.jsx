@@ -7,11 +7,11 @@ import { FaHeart, FaShoppingCart, FaEye, FaStar, FaFire, FaTags } from 'react-ic
 import { BsArrowRight, BsStarFill, BsHeartFill, BsCart3 } from 'react-icons/bs'
 import { MdAdd, MdFavorite, MdVisibility } from 'react-icons/md'
 import { useAppContext } from "@/context";
-import  { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 const Products = ({ prod }) => {
   const router = useRouter();
-  const { cartCount, setCartCount,addToCart} = useAppContext();
+  const { cartCount, setCartCount, addToCart } = useAppContext();
   const [favorites, setFavorites] = useState(new Set())
   const [hoveredProduct, setHoveredProduct] = useState(null)
   const ref = useRef(null)
@@ -33,6 +33,23 @@ const Products = ({ prod }) => {
 
   const calculateDiscount = (oldPrice, newPrice) => {
     return Math.round(((oldPrice - newPrice) / oldPrice) * 100)
+  }
+
+  const handleQuickView = (productId, e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    // Add quick view functionality here
+    console.log('Quick view product:', productId)
+  }
+
+  const handleQuickAddToCart = (productId, e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    addToCart(productId)
+  }
+
+  const handleViewAll = () => {
+    router.push('/products')
   }
 
   const container = {
@@ -64,10 +81,20 @@ const Products = ({ prod }) => {
     }
   }
 
+  const renderStars = (rating = 4.5) => {
+    return [...Array(5)].map((_, i) => (
+      <BsStarFill
+        key={i}
+        size={10}
+        className={i < Math.floor(rating) ? "text-yellow-400" : "text-gray-300"}
+      />
+    ))
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 py-16 relative overflow-hidden">
       {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-gradient-to-r from-pink-400/10 to-red-400/10 rounded-full blur-3xl animate-pulse animation-delay-2000" />
       </div>
@@ -131,8 +158,8 @@ const Products = ({ prod }) => {
           animate={isInView ? "show" : "hidden"}
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6"
         >
-          {prod.map((product, index) => {
-            const discount = calculateDiscount(product.oldPrice, product.price)
+          {prod?.map((product, index) => {
+            const discount = product.oldPrice ? calculateDiscount(product.oldPrice, product.price) : 0
             const isFavorite = favorites.has(product._id)
             const isHovered = hoveredProduct === product._id
 
@@ -205,8 +232,8 @@ const Products = ({ prod }) => {
                           className="relative w-full h-full flex items-center justify-center"
                         >
                           <Image
-                            src={product.image[0].src}
-                            alt={product.name}
+                            src={product.image?.[0]?.src || '/placeholder-image.jpg'}
+                            alt={product.name || 'Product'}
                             width={300}
                             height={300}
                             className="object-contain max-w-full max-h-full transition-all duration-500"
@@ -229,7 +256,8 @@ const Products = ({ prod }) => {
                                 exit={{ scale: 0, y: 20 }}
                                 transition={{ delay: 0.1 }}
                                 className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-blue-600 hover:text-white transition-all duration-300"
-                                onClick={(e) => e.preventDefault()}
+                                onClick={(e) => handleQuickView(product._id, e)}
+                                title="Quick View"
                               >
                                 <MdVisibility size={16} />
                               </motion.button>
@@ -239,7 +267,8 @@ const Products = ({ prod }) => {
                                 exit={{ scale: 0, y: 20 }}
                                 transition={{ delay: 0.2 }}
                                 className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-green-600 hover:text-white transition-all duration-300"
-                                onClick={(e) => e.preventDefault()}
+                                onClick={(e) => handleQuickAddToCart(product._id, e)}
+                                title="Add to Cart"
                               >
                                 <BsCart3 size={16} />
                               </motion.button>
@@ -252,19 +281,15 @@ const Products = ({ prod }) => {
                       <div className="space-y-2">
                         {/* Product Name */}
                         <h3 className="text-sm md:text-base font-semibold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors duration-300">
-                          {product.name}
+                          {product.name || 'Product Name'}
                         </h3>
 
                         {/* Rating */}
                         <div className="flex items-center gap-1">
-                          {[...Array(5)].map((_, i) => (
-                            <BsStarFill
-                              key={i}
-                              size={10}
-                              className={i < 4 ? "text-yellow-400" : "text-gray-300"}
-                            />
-                          ))}
-                          <span className="text-xs text-gray-500 ml-1">(4.5)</span>
+                          {renderStars(product.rating)}
+                          <span className="text-xs text-gray-500 ml-1">
+                            ({product.rating || 4.5})
+                          </span>
                         </div>
 
                         {/* Pricing */}
@@ -274,7 +299,7 @@ const Products = ({ prod }) => {
                               whileHover={{ scale: 1.05 }}
                               className="text-lg md:text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
                             >
-                              ₹{product.price.toLocaleString()}
+                              ₹{product.price?.toLocaleString() || '0'}
                             </motion.span>
                             {product.oldPrice && (
                               <span className="text-xs md:text-sm text-gray-400 line-through">
@@ -287,8 +312,9 @@ const Products = ({ prod }) => {
                           <motion.button
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
-                            onClick={(e) =>{ e.preventDefault();addToCart(produc._id)}}
+                            onClick={(e) => handleQuickAddToCart(product._id, e)}
                             className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0"
+                            title="Add to Cart"
                           >
                             <MdAdd size={16} />
                           </motion.button>
@@ -313,18 +339,22 @@ const Products = ({ prod }) => {
           className="text-center mt-16"
         >
           <motion.button
-            whileHover={{ scale: 1.05, boxShadow: "0 20px 40px -10px rgba(59, 130, 246, 0.3)" }}
+            whileHover={{ 
+              scale: 1.05, 
+              boxShadow: "0 20px 40px -10px rgba(59, 130, 246, 0.3)" 
+            }}
             whileTap={{ scale: 0.95 }}
+            onClick={handleViewAll}
             className="group px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-3 mx-auto relative overflow-hidden"
           >
             <span className="relative z-10">View All Products</span>
             <BsArrowRight className="group-hover:translate-x-1 transition-transform duration-300 relative z-10" />
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 transform translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 transform translate-x-full group-hover:translate-x-0 transition-transform duration-500" />
           </motion.button>
         </motion.div>
       </div>
 
-      {/* Custom CSS for animations */}
+      {/* Custom Styles */}
       <style jsx>{`
         .animation-delay-2000 {
           animation-delay: 2s;

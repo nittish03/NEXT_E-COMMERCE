@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+
+
 import { getServerSession } from "next-auth";
 import { authOptions } from '@/lib/authOptions';
 import { prismaDB } from "@/lib/prismaDB";
@@ -31,6 +33,20 @@ export async function POST(req) {
         { message: "Product not found in cart" },
         { status: 404 }
       );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 
     productIds.splice(productIndex, 1);

@@ -14,41 +14,70 @@ const Footer = () => {
   const [email, setEmail] = useState('');
   const [isVisible, setIsVisible] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Track mounting status
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Show scroll to top button when scrolled down
   useEffect(() => {
+    if (!isMounted) return;
+    
     const toggleVisibility = () => {
-      if (window.pageYOffset > 300) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
+      if (typeof window !== 'undefined') {
+        setIsVisible(window.pageYOffset > 300);
       }
     };
-    window.addEventListener('scroll', toggleVisibility);
-    return () => window.removeEventListener('scroll', toggleVisibility);
-  }, []);
+    
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', toggleVisibility);
+      return () => window.removeEventListener('scroll', toggleVisibility);
+    }
+  }, [isMounted]);
 
   // Mouse tracking for 3D effects
   useEffect(() => {
+    if (!isMounted) return;
+    
     const handleMouseMove = (e) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+    
+    if (typeof window !== 'undefined') {
+      window.addEventListener('mousemove', handleMouseMove);
+      return () => window.removeEventListener('mousemove', handleMouseMove);
+    }
+  }, [isMounted]);
 
   const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
+    if (typeof window !== 'undefined') {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+    }
   };
 
   const handleNewsletterSubmit = (e) => {
     e.preventDefault();
-    // Handle newsletter subscription
     console.log('Newsletter subscription:', email);
     setEmail('');
+  };
+
+  // Safe calculation for 3D transforms
+  const getScrollButtonTransform = () => {
+    if (!isMounted || typeof window === 'undefined') {
+      return { transform: 'scale(0)' };
+    }
+    
+    const scale = isVisible ? 1 : 0;
+    const rotateX = (mousePosition.y - window.innerHeight / 2) * 0.01;
+    
+    return {
+      transform: `scale(${scale}) perspective(1000px) rotateX(${rotateX}deg)`,
+    };
   };
 
   const quickLinks = [
@@ -69,13 +98,14 @@ const Footer = () => {
     { name: 'Brands', href: '/brands' },
   ];
 
-  const socialLinks = [
-    { icon: VscGithub, href: 'https://github.com/nittish03', color: 'hover:text-gray-800', bgColor: 'hover:bg-gray-100' },
-    { icon: FaLinkedin, href: 'https://linkedin.com/in/nittish03', color: 'hover:text-blue-600', bgColor: 'hover:bg-blue-100' },
-    { icon: FaTwitter, href: 'https://twitter.com', color: 'hover:text-blue-400', bgColor: 'hover:bg-blue-50' },
-    { icon: FaInstagram, href: 'https://instagram.com', color: 'hover:text-pink-600', bgColor: 'hover:bg-pink-50' },
-    { icon: FaYoutube, href: 'https://youtube.com', color: 'hover:text-red-600', bgColor: 'hover:bg-red-50' },
-  ];
+const socialLinks = [
+  { icon: VscGithub, name: 'GitHub', href: 'https://github.com/nittish03', color: 'hover:text-gray-800', bgColor: 'hover:bg-gray-100' },
+  { icon: FaLinkedin, name: 'LinkedIn', href: 'https://linkedin.com/in/nittish03', color: 'hover:text-blue-600', bgColor: 'hover:bg-blue-100' },
+  { icon: FaTwitter, name: 'Twitter', href: 'https://twitter.com', color: 'hover:text-blue-400', bgColor: 'hover:bg-blue-50' },
+  { icon: FaInstagram, name: 'Instagram', href: "https://www.instagram.com/nittish_baboria", color: 'hover:text-pink-600', bgColor: 'hover:bg-pink-50' },
+  { icon: FaYoutube, name: 'YouTube', href: 'https://youtube.com', color: 'hover:text-red-600', bgColor: 'hover:bg-red-50' },
+];
+
 
   const trustFeatures = [
     { icon: BsShieldCheck, text: 'Secure Shopping', subtext: '256-bit SSL' },
@@ -87,27 +117,28 @@ const Footer = () => {
   return (
     <>
       {/* Scroll to Top Button */}
-      {isVisible && (
-        <button
-          onClick={scrollToTop}
-          className="fixed bottom-8 right-8 z-50 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 rounded-full shadow-2xl hover:shadow-blue-500/25 transform hover:scale-110 transition-all duration-300 group"
-          style={{
-            transform: `scale(${isVisible ? 1 : 0}) perspective(1000px) rotateX(${(mousePosition.y - window.innerHeight / 2) * 0.01}deg)`,
-          }}
-        >
-          <FaArrowUp size={20} className="group-hover:animate-bounce" />
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full transform scale-0 group-hover:scale-100 transition-transform duration-500 -z-10"></div>
-        </button>
-      )}
+      <button
+        onClick={scrollToTop}
+        className={`fixed bottom-8 right-8 z-50 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 rounded-full shadow-2xl hover:shadow-blue-500/25 hover:scale-110 transition-all duration-300 group ${
+          isVisible && isMounted ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        style={isMounted ? getScrollButtonTransform() : { transform: 'scale(0)' }}
+        aria-label="Scroll to top"
+      >
+        <FaArrowUp size={20} className="group-hover:animate-bounce" />
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full transform scale-0 group-hover:scale-100 transition-transform duration-500 -z-10"></div>
+      </button>
 
       {/* Main Footer */}
       <footer className="relative bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-white overflow-hidden">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
-          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
-        </div>
+        {/* Animated Background Elements - Only after mounting */}
+        {isMounted && (
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
+            <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
+            <div className="absolute -bottom-8 left-20 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
+          </div>
+        )}
 
         {/* Newsletter Section */}
         <div className="relative border-b border-white/10 bg-black/20 backdrop-blur-sm">
@@ -157,8 +188,11 @@ const Footer = () => {
                     width={60} 
                     height={60} 
                     className="transition-all duration-500 group-hover:drop-shadow-2xl"
+                    priority={false}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-0 group-hover:opacity-30 transition-opacity duration-500"></div>
+                  {isMounted && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-0 group-hover:opacity-30 transition-opacity duration-500"></div>
+                  )}
                 </div>
                 <h2 className="ml-4 text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                   E-Commerce
@@ -172,15 +206,15 @@ const Footer = () => {
               {/* Contact Info */}
               <div className="space-y-3">
                 <div className="flex items-center text-gray-300 hover:text-white transition-colors duration-300">
-                  <MdLocationOn className="mr-3 text-blue-400" size={20} />
+                  <MdLocationOn className="mr-3 text-blue-400 flex-shrink-0" size={20} />
                   <span>123 Fashion Street, Style City, SC 12345</span>
                 </div>
                 <div className="flex items-center text-gray-300 hover:text-white transition-colors duration-300">
-                  <MdPhone className="mr-3 text-green-400" size={20} />
+                  <MdPhone className="mr-3 text-green-400 flex-shrink-0" size={20} />
                   <span>+1 (555) 123-4567</span>
                 </div>
                 <div className="flex items-center text-gray-300 hover:text-white transition-colors duration-300">
-                  <MdEmail className="mr-3 text-purple-400" size={20} />
+                  <MdEmail className="mr-3 text-purple-400 flex-shrink-0" size={20} />
                   <span>hello@ecommerce.com</span>
                 </div>
               </div>
@@ -223,13 +257,13 @@ const Footer = () => {
                 <li>
                   <Link href="/Men" className="text-gray-300 hover:text-white hover:translate-x-2 transition-all duration-300 flex items-center group">
                     <span className="w-0 group-hover:w-2 h-0.5 bg-purple-400 transition-all duration-300 mr-0 group-hover:mr-3"></span>
-                    Men's Collection
+                    Men&apos;s Collection
                   </Link>
                 </li>
                 <li>
                   <Link href="/Women" className="text-gray-300 hover:text-white hover:translate-x-2 transition-all duration-300 flex items-center group">
                     <span className="w-0 group-hover:w-2 h-0.5 bg-purple-400 transition-all duration-300 mr-0 group-hover:mr-3"></span>
-                    Women's Collection
+                    Women&apos;s Collection
                   </Link>
                 </li>
                 <li>
@@ -280,20 +314,27 @@ const Footer = () => {
           <div className="container mx-auto px-6 py-8">
             {/* Social Media Links */}
             <div className="flex justify-center items-center mb-8">
-              <div className="flex space-x-4">
-                {socialLinks.map((social, index) => (
-                  <Link
-                    key={index}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`p-3 bg-white/10 backdrop-blur-sm rounded-full ${social.color} ${social.bgColor} transform hover:scale-110 hover:rotate-12 transition-all duration-300 group relative overflow-hidden`}
-                  >
-                    <social.icon size={24} className="relative z-10 transition-transform duration-300 group-hover:scale-110" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 transform scale-0 group-hover:scale-100 transition-transform duration-300 rounded-full"></div>
-                  </Link>
-                ))}
-              </div>
+<div className="flex space-x-4">
+  {socialLinks.map((social, index) => (
+    <button
+      key={index}
+      type="button"
+      onClick={() => window.open(social.href, '_blank', 'noopener,noreferrer')}
+      className={`p-3 flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-full ${social.color} ${social.bgColor} transform hover:scale-110 hover:rotate-12 transition-all duration-300 group relative overflow-hidden`}
+      aria-label={`Follow us on ${social.name}`}
+      title={social.name}
+    >
+      <social.icon
+        size={24}
+        className="relative z-10 transition-transform duration-300 group-hover:scale-110 mx-auto"
+      />
+      {isMounted && (
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 transform scale-0 group-hover:scale-100 transition-transform duration-300 rounded-full"></div>
+      )}
+    </button>
+  ))}
+</div>
+
             </div>
 
             {/* Decorative Line */}
@@ -303,46 +344,54 @@ const Footer = () => {
 
             {/* Copyright */}
             <div className="text-center">
-              <p className="text-gray-400 text-sm flex items-center justify-center">
-                &copy; 2025 E-Commerce. Made with 
+              <p className="text-gray-400 text-sm flex items-center justify-center flex-wrap">
+                <span>&copy; 2025 E-Commerce. Made with</span>
                 <AiOutlineHeart className="mx-2 text-red-500 animate-pulse" size={16} />
-                by Nittish. All Rights Reserved.
+                <span>by Nittish. All Rights Reserved.</span>
               </p>
-              <div className="mt-4 flex justify-center items-center space-x-6 text-xs text-gray-500">
-                <Link href="/privacy" className="hover:text-white transition-colors duration-300">Privacy Policy</Link>
-                <span>•</span>
-                <Link href="/terms" className="hover:text-white transition-colors duration-300">Terms of Service</Link>
-                <span>•</span>
-                <Link href="/cookies" className="hover:text-white transition-colors duration-300">Cookie Policy</Link>
+              <div className="mt-4 flex justify-center items-center space-x-6 text-xs text-gray-500 flex-wrap">
+                <Link href="/privacy" className="hover:text-white transition-colors duration-300">
+                  Privacy Policy
+                </Link>
+                <span className="hidden sm:inline">•</span>
+                <Link href="/terms" className="hover:text-white transition-colors duration-300">
+                  Terms of Service
+                </Link>
+                <span className="hidden sm:inline">•</span>
+                <Link href="/cookies" className="hover:text-white transition-colors duration-300">
+                  Cookie Policy
+                </Link>
               </div>
             </div>
           </div>
         </div>
       </footer>
 
-      {/* Custom Animations */}
-      <style jsx>{`
-        @keyframes blob {
-          0% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-          100% { transform: translate(0px, 0px) scale(1); }
-        }
-        
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-      `}</style>
+      {/* Custom Animations - Only render after mounting */}
+      {isMounted && (
+        <style jsx>{`
+          @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+          }
+          
+          .animate-blob {
+            animation: blob 7s infinite;
+          }
+          
+          .animation-delay-2000 {
+            animation-delay: 2s;
+          }
+          
+          .animation-delay-4000 {
+            animation-delay: 4s;
+          }
+        `}</style>
+      )}
     </>
   );
-}
+};
 
 export default Footer;

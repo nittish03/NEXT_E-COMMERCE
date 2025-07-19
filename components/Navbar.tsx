@@ -24,23 +24,48 @@ export default function Navbar() {
   const { data: session } = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [windowDimensions, setWindowDimensions] = useState({
+    width: 0,
+    height: 0,
+  });
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isMounted, setIsMounted] = useState(false);
   
   // Ref for dropdown to detect outside clicks
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Track mount status and window dimensions
+  useEffect(() => {
+    setIsMounted(true);
+    const updateDimensions = () => {
+      setWindowDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    updateDimensions();
+    window.addEventListener("resize", updateDimensions);
+
+    return () => {
+      window.removeEventListener("resize", updateDimensions);
+    };
+  }, []);
 
   const handleLogout = () => {
     signOut();
     toast.success("Logged out successfully");
     router.push("/");
-    setIsProfileDropdownOpen(false); // Close dropdown on logout
+    setIsProfileDropdownOpen(false);
   };
 
   // Handle dropdown closing on outside click
   useEffect(() => {
+    if (!isMounted) return;
+    
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsProfileDropdownOpen(false);
@@ -54,7 +79,7 @@ export default function Navbar() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isProfileDropdownOpen]);
+  }, [isProfileDropdownOpen, isMounted]);
 
   // Close dropdown when pathname changes
   useEffect(() => {
@@ -63,24 +88,30 @@ export default function Navbar() {
 
   // Handle scroll effect
   useEffect(() => {
+    if (!isMounted) return;
+    
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isMounted]);
 
   // Handle mouse move for 3D effects
   useEffect(() => {
+    if (!isMounted) return;
+    
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
-    window.addEventListener("mousemove", handleMouseMove as any);
-    return () => window.removeEventListener("mousemove", handleMouseMove as any);
-  }, []);
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [isMounted]);
 
   // Get cart count
   useEffect(() => {
+    if (!isMounted) return;
+    
     const getTotalProducts = async () => {
       try {
         const response = await axios.get("/api/Cart/total-products");
@@ -92,7 +123,7 @@ export default function Navbar() {
     if (session) {
       getTotalProducts();
     }
-  }, [cartCount, session, setCartCount]);
+  }, [cartCount, session, setCartCount, isMounted]);
 
   const navItems = [
     { name: "Home", href: "/" },
@@ -109,6 +140,30 @@ export default function Navbar() {
     return pathname.startsWith(href);
   };
 
+  // Don't render 3D effects until mounted
+  const get3DTransform = () => {
+    if (!isMounted || windowDimensions.height === 0) return {};
+
+    return {
+      transform: `perspective(1000px) rotateX(${
+        (mousePosition.y - windowDimensions.height / 2) * 0.001
+      }deg)`,
+    };
+  };
+
+  // Safe mobile menu transform
+  const getMobileMenuStyle = () => {
+    const baseTransform = isMenuOpen ? 'translateX(0%)' : 'translateX(100%)';
+    
+    if (!isMounted) {
+      return { transform: baseTransform };
+    }
+    
+    return {
+      transform: `${baseTransform} perspective(1000px) rotateY(${isMenuOpen ? '0deg' : '45deg'})`,
+    };
+  };
+
   return (
     <>
       {/* Main Navbar */}
@@ -118,11 +173,7 @@ export default function Navbar() {
             ? "bg-white/80 backdrop-blur-xl shadow-2xl border-b border-gray-200/30"
             : "bg-white/95 backdrop-blur-sm shadow-lg"
         }`}
-        style={{
-          transform: `perspective(1000px) rotateX(${
-            (mousePosition.y - window.innerHeight / 2) * 0.001
-          }deg)`,
-        }}
+        style={get3DTransform()}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
           <div className="flex items-center justify-between h-16">
@@ -199,7 +250,7 @@ export default function Navbar() {
                   onBlur={() => setIsSearchFocused(false)}
                   className="w-48 lg:w-64 px-4 py-2 pl-10 pr-4 text-gray-700 bg-gray-100 rounded-full border-2 border-transparent focus:border-blue-500 focus:bg-white focus:outline-none transition-all duration-300 focus:shadow-lg"
                 />
-                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 transition-colors duration-300 group-focus-within:text-blue-500" />
+                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 transition-colors duration-300" />
               </div>
             </div>
 
