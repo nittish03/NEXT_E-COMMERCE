@@ -256,7 +256,7 @@ const Products = ({ prod }) => {
                                 exit={{ scale: 0, y: 20 }}
                                 transition={{ delay: 0.1 }}
                                 className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-blue-600 hover:text-white transition-all duration-300"
-                                onClick={(e) => handleQuickView(product._id, e)}
+                                  onClick={(e) => {e.preventDefault();router.push(`/product?id=${product._id}`)}}
                                 title="Quick View"
                               >
                                 <MdVisibility size={16} />
