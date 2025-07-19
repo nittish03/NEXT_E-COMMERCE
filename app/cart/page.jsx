@@ -73,7 +73,7 @@ const Page = () => {
         getTotalProducts();
       }
     }
-  }, [session, cartCount, setCartCount, addToCart,filteredProducts,totalPrice]);
+  }, [session, cartCount]);
 
   return (
     <>
